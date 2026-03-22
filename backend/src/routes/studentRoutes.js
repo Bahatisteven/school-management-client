@@ -3,6 +3,7 @@ const router = express.Router();
 const studentController = require('../controllers/studentController');
 const { auth, authorize } = require('../middlewares/auth');
 const { ROLES } = require('../config/constants');
+const validation = require('../middlewares/validation');
 
 router.use(auth);
 
@@ -15,6 +16,7 @@ router.get(
 router.put(
   '/profile',
   authorize(ROLES.STUDENT),
+  validation.updateProfileValidation,
   studentController.updateProfile
 );
 
