@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -64,12 +65,15 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
-  this.password = await bcrypt.hash(this.password, 12);
+  const sha512Hash = crypto.createHash('sha512').update(this.password).digest('hex');
+
+  this.password = await bcrypt.hash(sha512Hash, 12);
   next();
 });
 
 userSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  const sha512Hash = crypto.createHash('sha512').update(candidatePassword).digest('hex');
+  return await bcrypt.compare(sha512Hash, this.password);
 };
 
 userSchema.methods.hasVerifiedDevice = function(deviceId) {
