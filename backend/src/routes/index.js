@@ -1,0 +1,13 @@
+const express = require('express');
+const router = express.Router();
+
+router.use('/auth', require('./authRoutes'));
+router.use('/fees', require('./feeRoutes'));
+router.use('/academic', require('./academicRoutes'));
+router.use('/students', require('./studentRoutes'));
+
+router.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+module.exports = router;
