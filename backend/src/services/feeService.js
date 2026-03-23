@@ -2,6 +2,11 @@ const Student = require('../models/Student');
 const FeeTransaction = require('../models/FeeTransaction');
 const FeeTransactionDTO = require('../dtos/FeeTransactionDTO');
 const { NotFoundError, InsufficientBalanceError, ValidationError } = require('../utils/errors');
+const { 
+  PAGINATION,
+  TRANSACTION_STATUS,
+  TRANSACTION_TYPES,
+} = require('../config/constants');
 
 class FeeService {
   async deposit(studentId, amount, description, processedBy) {
@@ -20,10 +25,10 @@ class FeeService {
 
     const transaction = new FeeTransaction({
       studentId,
-      type: 'deposit',
+      type: TRANSACTION_TYPES.DEPOSIT,
       amount,
       description: description || 'Fee deposit',
-      status: 'completed',
+      status: TRANSACTION_STATUS.COMPLETED,
       processedBy,
       balanceAfter,
     });
@@ -58,10 +63,10 @@ class FeeService {
 
     const transaction = new FeeTransaction({
       studentId,
-      type: 'withdraw',
+      type: TRANSACTION_TYPES.WITHDRAW,
       amount,
       description: description || 'Fee withdrawal',
-      status: 'completed',
+      status: TRANSACTION_STATUS.COMPLETED,
       processedBy,
       balanceAfter,
     });
@@ -86,7 +91,7 @@ class FeeService {
     };
   }
 
-  async getTransactionHistory(studentId, limit = 50) {
+  async getTransactionHistory(studentId, limit = PAGINATION.TRANSACTION_LIMIT) {
     const transactions = await FeeTransaction.find({ studentId })
       .sort({ transactionDate: -1 })
       .limit(limit);
