@@ -7,7 +7,7 @@ const { ConflictError, UnauthorizedError, NotFoundError } = require('../utils/er
 
 class AuthService {
   async register(userData) {
-    const { email, password, firstName, lastName, role, phoneNumber, dateOfBirth } = userData;
+    const { email, password, firstName, lastName, role, phoneNumber, dateOfBirth, deviceId, deviceName } = userData;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -22,6 +22,15 @@ class AuthService {
       role,
       phoneNumber,
     });
+
+    // Capture the registering device as pending verification
+    if (deviceId) {
+      user.deviceIds.push({
+        deviceId,
+        deviceName: deviceName || 'Unknown Device',
+        isVerified: false,
+      });
+    }
 
     await user.save();
 

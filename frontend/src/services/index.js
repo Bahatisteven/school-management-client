@@ -2,31 +2,45 @@ import api from './api';
 
 export const authService = {
   register: async (data) => {
-    const response = await api.post('/auth/register', data);
+    // Include the browser's deviceId so the device appears in the admin
+    // verification queue immediately after registration
+    const deviceId = localStorage.getItem('deviceId') || generateDeviceId();
+    const deviceName = navigator.userAgent.split(' ')[0] || 'Unknown Device';
+
+    const response = await api.post('/auth/register', {
+      ...data,
+      deviceId,
+      deviceName,
+    });
     return response.data;
   },
 
   login: async (email, password) => {
-    const deviceId = localStorage.getItem('deviceId') || 
-      'device_' + Math.random().toString(36).substr(2, 9) + Date.now();
-    
-    localStorage.setItem('deviceId', deviceId);
-    
+    const deviceId = localStorage.getItem('deviceId') || generateDeviceId();
     const deviceName = navigator.userAgent.split(' ')[0] || 'Unknown Device';
-    
-    const response = await api.post('/auth/login', {
-      email,
-      password,
-      deviceId,
-      deviceName,
-    });
-    
-    if (response.data.success && response.data.data.token) {
-      localStorage.setItem('token', response.data.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.data.user));
+
+    try {
+      const response = await api.post('/auth/login', {
+        email,
+        password,
+        deviceId,
+        deviceName,
+      });
+
+      if (response.data.success && response.data.data?.token) {
+        localStorage.setItem('token', response.data.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.data.user));
+      }
+
+      return response.data;
+    } catch (err) {
+      // Device-verification responses come back as 403 — surface them as
+      // normal return values so the UI can show a helpful info message
+      if (err.response?.data?.requiresVerification) {
+        return err.response.data;
+      }
+      throw err;
     }
-    
-    return response.data;
   },
 
   logout: async () => {
