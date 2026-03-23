@@ -11,6 +11,9 @@ const app = express();
 
 connectDB();
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(helmet());
 app.use(cors({
   origin: process.env.CLIENT_URL || '*',
@@ -24,9 +27,6 @@ const limiter = rateLimit({
 });
 
 app.use('/api', limiter);
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', routes);
 
