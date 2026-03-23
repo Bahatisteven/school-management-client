@@ -1,5 +1,14 @@
 import api from './api';
 
+function generateDeviceId() {
+  let deviceId = localStorage.getItem('deviceId');
+  if (!deviceId) {
+    deviceId = 'device_' + Math.random().toString(36).substr(2, 9) + Date.now();
+    localStorage.setItem('deviceId', deviceId);
+  }
+  return deviceId;
+}
+
 export const authService = {
   register: async (data) => {
     // Include the browser's deviceId so the device appears in the admin
