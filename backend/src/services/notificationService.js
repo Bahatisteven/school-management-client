@@ -132,7 +132,7 @@ class NotificationService {
   async notifyGradeAdded(userId, subject, score) {
     return this.create(
       userId,
-      'grade_added',
+      NOTIFICATION_TYPES.GRADE_ADDED,
       'New Grade Added',
       `A new grade has been added for ${subject}: ${score}/100`,
       { subject, score }
@@ -142,7 +142,7 @@ class NotificationService {
   async notifyAttendanceMarked(userId, date, status) {
     return this.create(
       userId,
-      'attendance_marked',
+      NOTIFICATION_TYPES.ATTENDANCE_MARKED,
       'Attendance Marked',
       `Your attendance for ${new Date(date).toLocaleDateString()} has been marked as: ${status}`,
       { date, status }
