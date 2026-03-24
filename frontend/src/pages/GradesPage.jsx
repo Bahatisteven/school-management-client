@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { academicService, studentService } from '../services';
 import { useAuth } from '../utils/AuthContext';
+import { GraduationCap, TrendingUp, BookOpen } from 'lucide-react';
 
 function GradesPage() {
   const { user } = useAuth();
@@ -46,7 +47,10 @@ function GradesPage() {
     <>
       <Navbar />
       <div className="container">
-        <h1 style={{ marginBottom: '30px' }}>Academic Grades</h1>
+        <div className="page-header">
+          <h1>Academic Grades</h1>
+          <p>View your academic performance and grades</p>
+        </div>
 
         {user.role === 'parent' && children.length > 0 && (
           <div className="card">
@@ -66,83 +70,83 @@ function GradesPage() {
         )}
 
         {loading ? (
-          <div className="loading">Loading...</div>
+          <div className="loading">
+            <div className="loading-spinner"></div>
+            <div className="loading-text">Loading grades...</div>
+          </div>
         ) : (
           <>
-            <div className="card">
-              <h2>Overall Performance</h2>
-              <div style={{ display: 'flex', gap: '40px', marginTop: '20px' }}>
-                <div>
-                  <p style={{ color: '#6b7280', marginBottom: '5px' }}>Total Grades</p>
-                  <p style={{ fontSize: '32px', fontWeight: 'bold', color: '#4f46e5' }}>
-                    {grades.length}
-                  </p>
+            <div className="grid grid-2">
+              <div className="stat-card-modern">
+                <div className="stat-card-header">
+                  <div className="stat-icon-wrapper" style={{ background: '#667eea' }}>
+                    <BookOpen size={20} strokeWidth={2.5} />
+                  </div>
+                  <h3 className="stat-title">Total Grades</h3>
                 </div>
-                <div>
-                  <p style={{ color: '#6b7280', marginBottom: '5px' }}>Average Score</p>
-                  <p style={{ fontSize: '32px', fontWeight: 'bold', color: '#10b981' }}>
-                    {calculateAverage()}%
-                  </p>
+                <div className="stat-number">{grades.length}</div>
+              </div>
+
+              <div className="stat-card-modern">
+                <div className="stat-card-header">
+                  <div className="stat-icon-wrapper" style={{ background: '#10b981' }}>
+                    <TrendingUp size={20} strokeWidth={2.5} />
+                  </div>
+                  <h3 className="stat-title">Average Score</h3>
                 </div>
+                <div className="stat-number">{calculateAverage()}%</div>
               </div>
             </div>
 
-            <div className="card">
-              <h2>All Grades</h2>
+            <div className="card" style={{ marginTop: '24px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#111827', marginBottom: '20px' }}>All Grades</h2>
               {grades.length > 0 ? (
-                <table style={{ width: '100%', marginTop: '20px' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Subject</th>
-                      <th style={{ padding: '12px', textAlign: 'center' }}>Score</th>
-                      <th style={{ padding: '12px', textAlign: 'center' }}>Grade</th>
-                      <th style={{ padding: '12px', textAlign: 'center' }}>Exam Type</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Term</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Teacher</th>
-                      <th style={{ padding: '12px', textAlign: 'right' }}>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {grades.map((grade) => (
-                      <tr key={grade.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                        <td style={{ padding: '12px', fontWeight: '500' }}>{grade.subject}</td>
-                        <td style={{ padding: '12px', textAlign: 'center', fontSize: '18px' }}>
-                          {grade.score}%
-                        </td>
-                        <td
-                          style={{
-                            padding: '12px',
-                            textAlign: 'center',
-                            fontWeight: 'bold',
-                            fontSize: '18px',
-                            color: grade.score >= 70 ? '#10b981' : '#ef4444',
-                          }}
-                        >
-                          {grade.grade}
-                        </td>
-                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                          <span
-                            style={{
-                              padding: '4px 8px',
-                              borderRadius: '4px',
-                              fontSize: '12px',
-                              background: '#f3f4f6',
-                            }}
-                          >
-                            {grade.examType || 'N/A'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px' }}>{grade.term || 'N/A'}</td>
-                        <td style={{ padding: '12px' }}>{grade.teacher || 'N/A'}</td>
-                        <td style={{ padding: '12px', textAlign: 'right', fontSize: '14px' }}>
-                          {new Date(grade.recordedDate).toLocaleDateString()}
-                        </td>
+                <div className="table-responsive">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Subject</th>
+                        <th style={{ textAlign: 'center' }}>Score</th>
+                        <th style={{ textAlign: 'center' }}>Grade</th>
+                        <th style={{ textAlign: 'center' }}>Exam Type</th>
+                        <th>Term</th>
+                        <th>Teacher</th>
+                        <th style={{ textAlign: 'right' }}>Date</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {grades.map((grade) => (
+                        <tr key={grade.id}>
+                          <td style={{ fontWeight: '600' }}>{grade.subject}</td>
+                          <td style={{ textAlign: 'center', fontSize: '16px', fontWeight: '600' }}>
+                            {grade.score}%
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            <span className={`badge ${grade.score >= 70 ? 'badge-success' : 'badge-danger'}`}>
+                              {grade.grade}
+                            </span>
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            <span className="badge badge-info">
+                              {grade.examType || 'N/A'}
+                            </span>
+                          </td>
+                          <td>{grade.term || 'N/A'}</td>
+                          <td>{grade.teacher || 'N/A'}</td>
+                          <td style={{ textAlign: 'right', fontSize: '13px', color: '#6b7280' }}>
+                            {new Date(grade.recordedDate).toLocaleDateString('en-US', { 
+                              year: 'numeric', 
+                              month: 'short', 
+                              day: 'numeric' 
+                            })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               ) : (
-                <p style={{ marginTop: '20px' }}>No grades recorded yet</p>
+                <p style={{ color: '#6b7280', textAlign: 'center', padding: '40px 20px' }}>No grades recorded yet</p>
               )}
             </div>
           </>

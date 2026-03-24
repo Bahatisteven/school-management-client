@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { feeService, studentService } from '../services';
 import { useAuth } from '../utils/AuthContext';
+import { DollarSign, TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
 
 function FeesPage() {
   const { user } = useAuth();
@@ -90,10 +91,23 @@ function FeesPage() {
     <>
       <Navbar />
       <div className="container">
-        <h1 style={{ marginBottom: '30px' }}>Fee Management</h1>
+        <div className="page-header">
+          <h1>Fee Management</h1>
+          <p>Manage your school fee balance and transactions</p>
+        </div>
 
-        {error && <div className="alert alert-error">{error}</div>}
-        {success && <div className="alert alert-success">{success}</div>}
+        {error && (
+          <div className="alert alert-error">
+            <AlertCircle size={20} />
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="alert alert-success">
+            <AlertCircle size={20} />
+            {success}
+          </div>
+        )}
 
         {user.role === 'parent' && children.length > 0 && (
           <div className="card">
@@ -113,15 +127,24 @@ function FeesPage() {
         )}
 
         <div className="card">
-          <h2>Current Balance</h2>
-          <p style={{ fontSize: '36px', fontWeight: 'bold', color: '#4f46e5', margin: '20px 0' }}>
-            RWF {balance.toLocaleString()}
-          </p>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <div className="stat-icon-wrapper" style={{ background: '#667eea' }}>
+                <DollarSign size={20} strokeWidth={2.5} />
+              </div>
+              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '700', color: '#111827' }}>Current Balance</h2>
+            </div>
+            <p style={{ fontSize: '42px', fontWeight: '700', color: '#667eea', margin: '20px 0' }}>
+              RWF {balance.toLocaleString()}
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button className="btn btn-success" onClick={() => setShowDeposit(true)}>
+              <TrendingUp size={18} />
               Deposit
             </button>
             <button className="btn btn-danger" onClick={() => setShowWithdraw(true)}>
+              <TrendingDown size={18} />
               Withdraw
             </button>
           </div>
@@ -211,51 +234,48 @@ function FeesPage() {
         )}
 
         <div className="card">
-          <h2>Transaction History</h2>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#111827', marginBottom: '20px' }}>Transaction History</h2>
           {transactions.length > 0 ? (
-            <table style={{ width: '100%', marginTop: '20px' }}>
-              <thead>
-                <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Date</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Type</th>
-                  <th style={{ padding: '12px', textAlign: 'left' }}>Description</th>
-                  <th style={{ padding: '12px', textAlign: 'right' }}>Amount</th>
-                  <th style={{ padding: '12px', textAlign: 'right' }}>Balance After</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.map((txn) => (
-                  <tr key={txn.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                    <td style={{ padding: '12px' }}>
-                      {new Date(txn.transactionDate).toLocaleDateString()}
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <span
-                        style={{
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          fontSize: '12px',
-                          fontWeight: '500',
-                          background: txn.type === 'deposit' ? '#d1fae5' : '#fee2e2',
-                          color: txn.type === 'deposit' ? '#065f46' : '#991b1b',
-                        }}
-                      >
-                        {txn.type.toUpperCase()}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px' }}>{txn.description || '-'}</td>
-                    <td style={{ padding: '12px', textAlign: 'right' }}>
-                      RWF {txn.amount.toLocaleString()}
-                    </td>
-                    <td style={{ padding: '12px', textAlign: 'right' }}>
-                      RWF {txn.balanceAfter.toLocaleString()}
-                    </td>
+            <div className="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th style={{ textAlign: 'right' }}>Amount</th>
+                    <th style={{ textAlign: 'right' }}>Balance After</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {transactions.map((txn) => (
+                    <tr key={txn.id}>
+                      <td style={{ fontSize: '13px', color: '#6b7280' }}>
+                        {new Date(txn.transactionDate).toLocaleDateString('en-US', { 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
+                      </td>
+                      <td>
+                        <span className={`badge ${txn.type === 'deposit' ? 'badge-success' : 'badge-danger'}`}>
+                          {txn.type.toUpperCase()}
+                        </span>
+                      </td>
+                      <td>{txn.description || '-'}</td>
+                      <td style={{ textAlign: 'right', fontWeight: '600' }}>
+                        RWF {txn.amount.toLocaleString()}
+                      </td>
+                      <td style={{ textAlign: 'right', fontWeight: '600', color: '#667eea' }}>
+                        RWF {txn.balanceAfter.toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ) : (
-            <p style={{ marginTop: '20px' }}>No transactions yet</p>
+            <p style={{ color: '#6b7280', textAlign: 'center', padding: '40px 20px' }}>No transactions yet</p>
           )}
         </div>
       </div>

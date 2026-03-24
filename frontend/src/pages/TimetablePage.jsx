@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { academicService, studentService } from '../services';
 import { useAuth } from '../utils/AuthContext';
+import { Calendar, Clock, BookOpen, User } from 'lucide-react';
 
 function TimetablePage() {
   const { user } = useAuth();
@@ -50,7 +51,10 @@ function TimetablePage() {
     <>
       <Navbar />
       <div className="container">
-        <h1 style={{ marginBottom: '30px' }}>Class Timetable</h1>
+        <div className="page-header">
+          <h1>Class Timetable</h1>
+          <p>View your class schedule and subjects</p>
+        </div>
 
         {user.role === 'parent' && children.length > 0 && (
           <div className="card">
@@ -70,14 +74,27 @@ function TimetablePage() {
         )}
 
         {loading ? (
-          <div className="loading">Loading...</div>
+          <div className="loading">
+            <div className="loading-spinner"></div>
+            <div className="loading-text">Loading timetable...</div>
+          </div>
         ) : error ? (
-          <div className="alert alert-error">{error}</div>
+          <div className="alert alert-error">
+            <Calendar size={20} />
+            {error}
+          </div>
         ) : timetable ? (
           <>
             <div className="card">
-              <h2>{timetable.class.name}</h2>
-              <p style={{ color: '#6b7280', marginTop: '5px' }}>Grade: {timetable.class.grade}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="stat-icon-wrapper" style={{ background: '#667eea' }}>
+                  <BookOpen size={20} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '700', color: '#111827' }}>{timetable.class.name}</h2>
+                  <p style={{ color: '#6b7280', marginTop: '4px', margin: 0 }}>Grade: {timetable.class.grade}</p>
+                </div>
+              </div>
             </div>
 
             {days.map((day) => {
@@ -86,36 +103,49 @@ function TimetablePage() {
 
               return (
                 <div key={day} className="card">
-                  <h3 style={{ marginBottom: '15px', color: '#4f46e5' }}>{day}</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                    <Calendar size={20} color="#667eea" />
+                    <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#667eea' }}>{day}</h3>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {daySchedule.map((item, index) => (
                       <div
                         key={index}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          padding: '15px',
-                          background: '#f9fafb',
-                          borderRadius: '4px',
-                          border: '1px solid #e5e7eb',
+                          padding: '16px',
+                          background: '#fafafa',
+                          borderRadius: '12px',
+                          border: '1px solid #f0f0f0',
+                          transition: 'all 0.2s ease',
                         }}
+                        className="timetable-item"
                       >
                         <div style={{ flex: 1 }}>
-                          <p style={{ fontWeight: '600', fontSize: '16px', marginBottom: '5px' }}>
-                            {item.subject}
-                          </p>
-                          {item.teacher && (
-                            <p style={{ color: '#6b7280', fontSize: '14px' }}>
-                              Teacher: {item.teacher}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                            <BookOpen size={16} color="#667eea" />
+                            <p style={{ fontWeight: '600', fontSize: '16px', margin: 0, color: '#111827' }}>
+                              {item.subject}
                             </p>
+                          </div>
+                          {item.teacher && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <User size={14} color="#6b7280" />
+                              <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>
+                                {item.teacher}
+                              </p>
+                            </div>
                           )}
                         </div>
-                        <div style={{ textAlign: 'right' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Clock size={16} color="#667eea" />
                           <p
                             style={{
                               fontSize: '14px',
-                              fontWeight: '500',
-                              color: '#4f46e5',
+                              fontWeight: '600',
+                              color: '#667eea',
+                              margin: 0,
                             }}
                           >
                             {item.startTime} - {item.endTime}
@@ -130,7 +160,7 @@ function TimetablePage() {
           </>
         ) : (
           <div className="card">
-            <p>No timetable available</p>
+            <p style={{ color: '#6b7280', textAlign: 'center', padding: '40px 20px' }}>No timetable available</p>
           </div>
         )}
       </div>

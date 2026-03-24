@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { academicService, studentService } from '../services';
 import { useAuth } from '../utils/AuthContext';
+import { Calendar, CheckCircle, XCircle, Clock } from 'lucide-react';
 
 function AttendancePage() {
   const { user } = useAuth();
@@ -72,7 +73,10 @@ function AttendancePage() {
     <>
       <Navbar />
       <div className="container">
-        <h1 style={{ marginBottom: '30px' }}>Attendance Records</h1>
+        <div className="page-header">
+          <h1>Attendance Records</h1>
+          <p>Track your attendance and presence history</p>
+        </div>
 
         {user.role === 'parent' && children.length > 0 && (
           <div className="card">
@@ -124,81 +128,88 @@ function AttendancePage() {
         </div>
 
         {loading ? (
-          <div className="loading">Loading...</div>
+          <div className="loading">
+            <div className="loading-spinner"></div>
+            <div className="loading-text">Loading attendance...</div>
+          </div>
         ) : (
           <>
-            <div className="card">
-              <h2>Attendance Statistics</h2>
-              <div className="grid grid-3" style={{ marginTop: '20px' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ color: '#10b981', fontSize: '32px', fontWeight: 'bold' }}>
-                    {stats.rate}%
-                  </p>
-                  <p style={{ color: '#6b7280' }}>Attendance Rate</p>
+            <div className="grid grid-3">
+              <div className="stat-card-modern">
+                <div className="stat-card-header">
+                  <div className="stat-icon-wrapper" style={{ background: '#10b981' }}>
+                    <CheckCircle size={20} strokeWidth={2.5} />
+                  </div>
+                  <h3 className="stat-title">Attendance Rate</h3>
                 </div>
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ color: '#4f46e5', fontSize: '32px', fontWeight: 'bold' }}>
-                    {stats.present}
-                  </p>
-                  <p style={{ color: '#6b7280' }}>Present</p>
+                <div className="stat-number">{stats.rate}%</div>
+              </div>
+
+              <div className="stat-card-modern">
+                <div className="stat-card-header">
+                  <div className="stat-icon-wrapper" style={{ background: '#667eea' }}>
+                    <CheckCircle size={20} strokeWidth={2.5} />
+                  </div>
+                  <h3 className="stat-title">Present</h3>
                 </div>
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ color: '#ef4444', fontSize: '32px', fontWeight: 'bold' }}>
-                    {stats.absent}
-                  </p>
-                  <p style={{ color: '#6b7280' }}>Absent</p>
+                <div className="stat-number">{stats.present}</div>
+              </div>
+
+              <div className="stat-card-modern">
+                <div className="stat-card-header">
+                  <div className="stat-icon-wrapper" style={{ background: '#ef4444' }}>
+                    <XCircle size={20} strokeWidth={2.5} />
+                  </div>
+                  <h3 className="stat-title">Absent</h3>
                 </div>
+                <div className="stat-number">{stats.absent}</div>
               </div>
             </div>
 
-            <div className="card">
-              <h2>Attendance History</h2>
+            <div className="card" style={{ marginTop: '24px' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#111827', marginBottom: '20px' }}>Attendance History</h2>
               {attendance.length > 0 ? (
-                <table style={{ width: '100%', marginTop: '20px' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Date</th>
-                      <th style={{ padding: '12px', textAlign: 'center' }}>Status</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Remarks</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Recorded By</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <div className="table-responsive">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th style={{ textAlign: 'center' }}>Status</th>
+                        <th>Remarks</th>
+                        <th>Recorded By</th>
+                      </tr>
+                    </thead>
+                    <tbody>
                     {attendance.map((record) => {
                       const color = getStatusColor(record.status);
                       return (
-                        <tr key={record.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                          <td style={{ padding: '12px' }}>
-                            {new Date(record.date).toLocaleDateString()}
+                        <tr key={record.id}>
+                          <td style={{ fontSize: '13px', color: '#6b7280' }}>
+                            {new Date(record.date).toLocaleDateString('en-US', { 
+                              year: 'numeric', 
+                              month: 'short', 
+                              day: 'numeric' 
+                            })}
                           </td>
-                          <td style={{ padding: '12px', textAlign: 'center' }}>
-                            <span
-                              style={{
-                                padding: '6px 12px',
-                                borderRadius: '4px',
-                                fontSize: '12px',
-                                fontWeight: '500',
-                                background: color.bg,
-                                color: color.text,
-                                textTransform: 'uppercase',
-                              }}
-                            >
+                          <td style={{ textAlign: 'center' }}>
+                            <span className={`badge badge-${record.status === 'present' ? 'success' : record.status === 'absent' ? 'danger' : 'warning'}`}>
                               {record.status}
                             </span>
                           </td>
-                          <td style={{ padding: '12px' }}>{record.remarks || '-'}</td>
-                          <td style={{ padding: '12px' }}>{record.recordedBy || 'N/A'}</td>
+                          <td>{record.remarks || '-'}</td>
+                          <td>{record.recordedBy || 'N/A'}</td>
                         </tr>
                       );
                     })}
                   </tbody>
                 </table>
-              ) : (
-                <p style={{ marginTop: '20px' }}>No attendance records found</p>
-              )}
-            </div>
-          </>
-        )}
+              </div>
+            ) : (
+              <p style={{ color: '#6b7280', textAlign: 'center', padding: '40px 20px' }}>No attendance records found</p>
+            )}
+          </div>
+        </>
+      )}
       </div>
     </>
   );
