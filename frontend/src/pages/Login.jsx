@@ -97,7 +97,7 @@ function Login() {
                 ...(fieldErrors.email ? styles.inputError : {})
               }}
               disabled={loading}
-              placeholder="john.doe@example.com"
+              placeholder="you@example.com"
             />
             {fieldErrors.email && (
               <span style={styles.errorText}>{fieldErrors.email}</span>

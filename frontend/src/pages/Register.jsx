@@ -168,7 +168,7 @@ function Register() {
                   ...(fieldErrors.firstName ? styles.inputError : {})
                 }}
                 disabled={loading}
-                placeholder="John"
+                placeholder="First name"
               />
               {fieldErrors.firstName && (
                 <span style={styles.errorText}>{fieldErrors.firstName}</span>
@@ -189,7 +189,7 @@ function Register() {
                   ...(fieldErrors.lastName ? styles.inputError : {})
                 }}
                 disabled={loading}
-                placeholder="Doe"
+                placeholder="Last name"
               />
               {fieldErrors.lastName && (
                 <span style={styles.errorText}>{fieldErrors.lastName}</span>
@@ -211,7 +211,7 @@ function Register() {
                 ...(fieldErrors.email ? styles.inputError : {})
               }}
               disabled={loading}
-              placeholder="john.doe@example.com"
+              placeholder="you@example.com"
             />
             {fieldErrors.email && (
               <span style={styles.errorText}>{fieldErrors.email}</span>
@@ -344,7 +344,7 @@ function Register() {
                   paddingRight: '40px'
                 }}
                 disabled={loading}
-                placeholder="Re-enter your password"
+                placeholder="Confirm password"
               />
               <button
                 type="button"
