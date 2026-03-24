@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../utils/AuthContext';
+import { notificationService } from '../services';
 import { 
   LayoutDashboard, 
   DollarSign, 
@@ -9,7 +10,8 @@ import {
   ClipboardList,
   LogOut,
   Menu,
-  X
+  X,
+  Bell
 } from 'lucide-react';
 
 function Navbar() {
@@ -17,6 +19,23 @@ function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [unreadCount, setUnreadCount] = React.useState(0);
+
+  React.useEffect(() => {
+    loadUnreadCount();
+    // new notif every 30 secs
+    const interval = setInterval(loadUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadUnreadCount = async () => {
+    try {
+      const response = await notificationService.getNotifications(1, true);
+      setUnreadCount(response.data?.unreadCount || 0);
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    }
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -75,6 +94,19 @@ function Navbar() {
           </div>
           
           <div style={styles.userSection} className="user-section">
+            <button 
+              onClick={() => navigate('/grades')}
+              style={{ 
+                ...styles.notificationBtn,
+                position: 'relative'
+              }}
+              title="View recent grades"
+            >
+              <Bell size={18} />
+              {unreadCount > 0 && (
+                <span style={styles.badge}>{unreadCount}</span>
+              )}
+            </button>
             <div style={styles.userInfo} className="user-info">
               <div style={styles.userAvatar}>
                 {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
@@ -253,6 +285,33 @@ const styles = {
     justifyContent: 'center',
     transition: 'all 0.2s ease',
     boxShadow: '0 2px 4px rgba(239, 68, 68, 0.25)',
+  },
+  notificationBtn: {
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    padding: '9px',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 4px rgba(102, 126, 234, 0.25)',
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: '-4px',
+    right: '-4px',
+    background: '#ef4444',
+    color: 'white',
+    borderRadius: '10px',
+    padding: '2px 6px',
+    fontSize: '10px',
+    fontWeight: '700',
+    minWidth: '18px',
+    textAlign: 'center',
   },
 };
 

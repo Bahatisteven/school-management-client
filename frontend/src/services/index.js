@@ -137,3 +137,27 @@ export const studentService = {
     return response.data;
   },
 };
+
+export const notificationService = {
+  getNotifications: async (page = 1, unreadOnly = false) => {
+    const response = await api.get('/notifications', {
+      params: { page, unreadOnly }
+    });
+    return response.data;
+  },
+
+  markAsRead: async (notificationId) => {
+    const response = await api.patch(`/notifications/${notificationId}/read`);
+    return response.data;
+  },
+
+  markAllAsRead: async () => {
+    const response = await api.patch('/notifications/read-all');
+    return response.data;
+  },
+
+  deleteNotification: async (notificationId) => {
+    const response = await api.delete(`/notifications/${notificationId}`);
+    return response.data;
+  },
+};

@@ -231,7 +231,7 @@ function Register() {
                   ...(fieldErrors.phoneNumber ? styles.inputError : {})
                 }}
                 disabled={loading}
-                placeholder="+250 XXX XXX XXX"
+                placeholder="+250..."
               />
               {fieldErrors.phoneNumber && (
                 <span style={styles.errorText}>{fieldErrors.phoneNumber}</span>

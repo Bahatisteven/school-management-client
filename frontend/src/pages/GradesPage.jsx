@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
-import { academicService, studentService } from '../services';
+import { academicService, studentService, notificationService } from '../services';
 import { useAuth } from '../utils/AuthContext';
 import { GraduationCap, TrendingUp, BookOpen } from 'lucide-react';
 
@@ -13,7 +13,17 @@ function GradesPage() {
 
   useEffect(() => {
     loadData();
+    markGradeNotificationsAsRead();
   }, [selectedChild]);
+
+  const markGradeNotificationsAsRead = async () => {
+    try {
+      // Mark all grade-related notifications as read
+      await notificationService.markAllAsRead();
+    } catch (error) {
+      console.error('Error marking notifications as read:', error);
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -115,33 +125,52 @@ function GradesPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {grades.map((grade) => (
-                        <tr key={grade.id}>
-                          <td style={{ fontWeight: '600' }}>{grade.subject}</td>
-                          <td style={{ textAlign: 'center', fontSize: '16px', fontWeight: '600' }}>
-                            {grade.score}%
-                          </td>
-                          <td style={{ textAlign: 'center' }}>
-                            <span className={`badge ${grade.score >= 70 ? 'badge-success' : 'badge-danger'}`}>
-                              {grade.grade}
-                            </span>
-                          </td>
-                          <td style={{ textAlign: 'center' }}>
-                            <span className="badge badge-info">
-                              {grade.examType || 'N/A'}
-                            </span>
-                          </td>
-                          <td>{grade.term || 'N/A'}</td>
-                          <td>{grade.teacher || 'N/A'}</td>
-                          <td style={{ textAlign: 'right', fontSize: '13px', color: '#6b7280' }}>
-                            {new Date(grade.recordedDate).toLocaleDateString('en-US', { 
-                              year: 'numeric', 
-                              month: 'short', 
-                              day: 'numeric' 
-                            })}
-                          </td>
-                        </tr>
-                      ))}
+                      {grades.map((grade) => {
+                        const isNew = new Date(grade.recordedDate) > new Date(Date.now() - 24 * 60 * 60 * 1000);
+                        return (
+                          <tr key={grade.id} style={{ backgroundColor: isNew ? '#f0fdf4' : 'transparent' }}>
+                            <td style={{ fontWeight: '600' }}>
+                              {grade.subject}
+                              {isNew && (
+                                <span style={{
+                                  marginLeft: '8px',
+                                  fontSize: '10px',
+                                  fontWeight: '700',
+                                  color: '#10b981',
+                                  background: '#d1fae5',
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  textTransform: 'uppercase'
+                                }}>
+                                  New
+                                </span>
+                              )}
+                            </td>
+                            <td style={{ textAlign: 'center', fontSize: '16px', fontWeight: '600' }}>
+                              {grade.score}%
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              <span className={`badge ${grade.score >= 70 ? 'badge-success' : 'badge-danger'}`}>
+                                {grade.grade}
+                              </span>
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              <span className="badge badge-info">
+                                {grade.examType || 'N/A'}
+                              </span>
+                            </td>
+                            <td>{grade.term || 'N/A'}</td>
+                            <td>{grade.teacher || 'N/A'}</td>
+                            <td style={{ textAlign: 'right', fontSize: '13px', color: '#6b7280' }}>
+                              {new Date(grade.recordedDate).toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

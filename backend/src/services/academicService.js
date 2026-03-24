@@ -5,6 +5,7 @@ const Class = require('../models/Class');
 const GradeDTO = require('../dtos/GradeDTO');
 const AttendanceDTO = require('../dtos/AttendanceDTO');
 const { NotFoundError } = require('../utils/errors');
+const notificationService = require('./notificationService');
 
 class AcademicService {
   async getStudentGrades(studentId) {
@@ -65,6 +66,16 @@ class AcademicService {
     
     const populatedGrade = await Grade.findById(grade._id)
       .populate('teacherId', 'firstName lastName');
+
+    const student = await Student.findById(gradeData.studentId).populate('userId');
+    if (student && student.userId) {
+      // send notif to student
+      await notificationService.notifyGradeAdded(
+        student.userId._id,
+        gradeData.subject,
+        gradeData.score
+      );
+    }
     
     return GradeDTO.toClient(populatedGrade);
   }

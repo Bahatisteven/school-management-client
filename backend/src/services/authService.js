@@ -47,7 +47,7 @@ class AuthService {
   }
 
   async login(email, password, deviceId, deviceName) {
-    const user = await User.findOne({ email, isActive: true });
+    const user = await User.findOne({ email });
     if (!user) {
       throw new UnauthorizedError('Invalid credentials');
     }
@@ -55,6 +55,14 @@ class AuthService {
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       throw new UnauthorizedError('Invalid credentials');
+    }
+
+    if (!user.isActive) {
+      return {
+        success: false,
+        message: 'Your account is currently pending administrator approval.',
+        requiresVerification: true,
+      };
     }
 
     const existingDevice = user.deviceIds.find(d => d.deviceId === deviceId);
